@@ -4,6 +4,89 @@ load("//bazel:compat.bzl", "SKIP_ON_MACOS", "SKIP_ON_WINDOWS")
 load("//bazel:fuzz_target.bzl", "java_fuzz_target_test")
 load("//bazel:kotlin.bzl", "ktlint")
 
+java_jni_library(
+    name = "util_generate",
+    srcs = [
+        "src/main/java/util/Utils.java",
+        "src/main/java/util/PaddedByteArrayInputStream.java"
+    ],
+    deps = [
+        "@maven//:edu_berkeley_cs_jqf_jqf_fuzz",
+        "@maven//:com_pholser_junit_quickcheck_core",
+        "@maven//:edu_berkeley_cs_jqf_jqf_examples",
+    ],
+    runtime_deps = [
+            "@maven//:edu_berkeley_cs_jqf_jqf_examples",
+        ],
+)
+# Closure
+java_fuzz_target_test(
+    name = "ClosureGenFuzzer",
+    srcs = [
+        "src/main/java/com/example/ClosureGenFuzzer.java",
+        "src/main/java/com/example/ClosureFuzzer.java",
+    ],
+    target_class = "com.example.ClosureGenFuzzer",
+    deps = [
+        ":ClosureFuzzer",
+        "//src/main/java/com/code_intelligence/jazzer/mutation/annotation",
+        "@maven//:com_google_javascript_closure_compiler",
+        ":util_generate",
+        "@maven//:edu_berkeley_cs_jqf_jqf_examples",
+    ],
+
+)
+
+# Maven
+java_fuzz_target_test(
+    name = "MavenFuzzer",
+    srcs = [
+        "src/main/java/com/example/MavenFuzzer.java",
+    ],
+    target_class = "com.example.MavenFuzzer",
+    deps = [
+        "//src/main/java/com/code_intelligence/jazzer/mutation/annotation",
+        "@maven//:org_apache_maven_maven_model_builder",
+    ],
+)
+
+java_fuzz_target_test(
+    name = "MavenFuzzer2",
+    srcs = [
+        "src/main/java/com/example/MavenFuzzer2.java",
+    ],
+    target_class = "com.example.MavenFuzzer2",
+    deps = [
+        "//src/main/java/com/code_intelligence/jazzer/mutation/annotation",
+        "@maven//:org_apache_maven_maven_model_builder",
+    ],
+)
+
+# Closure
+java_fuzz_target_test(
+    name = "ClosureFuzzer",
+    srcs = [
+        "src/main/java/com/example/ClosureFuzzer.java",
+    ],
+    target_class = "com.example.ClosureFuzzer",
+    deps = [
+        "//src/main/java/com/code_intelligence/jazzer/mutation/annotation",
+        "@maven//:com_google_javascript_closure_compiler",
+    ],
+)
+
+java_fuzz_target_test(
+    name = "ClosureFuzzer2",
+    srcs = [
+        "src/main/java/com/example/ClosureFuzzer2.java",
+    ],
+    target_class = "com.example.ClosureFuzzer2",
+    deps = [
+        "//src/main/java/com/code_intelligence/jazzer/mutation/annotation",
+        "@maven//:com_google_javascript_closure_compiler",
+    ],
+)
+
 java_fuzz_target_test(
     name = "Autofuzz",
     allowed_findings = ["java.lang.ArrayIndexOutOfBoundsException"],
@@ -127,6 +210,16 @@ java_fuzz_target_test(
     allowed_findings = ["com.example.MazeFuzzer$$TreasureFoundException"],
     fuzzer_args = ["-use_value_profile=1"],
     target_class = "com.example.MazeFuzzer",
+)
+
+java_fuzz_target_test(
+    name = "MazeFuzzer_new_style",
+    srcs = [
+        "src/main/java/com/example/MazeFuzzer_new_style.java",
+    ],
+    allowed_findings = ["com.example.MazeFuzzer_new_style$$TreasureFoundException"],
+    fuzzer_args = ["-use_value_profile=1"],
+    target_class = "com.example.MazeFuzzer_new_style",
 )
 
 java_fuzz_target_test(
@@ -264,11 +357,22 @@ java_fuzz_target_test(
         "src/main/java/com/example/JsonSanitizerDenylistFuzzer.java",
     ],
     allowed_findings = ["java.lang.AssertionError"],
-    target_class = "com.example.JsonSanitizerDenylistFuzzer",
+    target_class = "JsonSanitizerDenylistFuzzer",
     deps = [
         "@maven//:com_mikesamuel_json_sanitizer",
     ],
 )
+java_fuzz_target_test(
+     name = "JsonSanitizerDenylistFuzzer_new_style",
+     srcs = [
+         "src/main/java/com/example/JsonSanitizerDenylistFuzzer_new_style.java",
+     ],
+     allowed_findings = ["java.lang.AssertionError"],
+     target_class = "com.example.JsonSanitizerDenylistFuzzer_new_style",
+     deps = [
+         "@maven//:com_mikesamuel_json_sanitizer",
+     ],
+ )
 
 java_binary(
     name = "JsonSanitizerReplayerCrash",
@@ -287,7 +391,7 @@ sh_test(
     srcs = ["check_for_finding.sh"],
     args = [
         "jazzer/$(rootpath :JsonSanitizerReplayerCrash)",
-        "com.example.JsonSanitizerDenylistFuzzer",
+        "JsonSanitizerDenylistFuzzer",
         "jazzer/$(rootpath :json_sanitizer_denylist_crash)",
     ],
     data = [
@@ -318,6 +422,19 @@ java_fuzz_target_test(
     ],
     allowed_findings = ["com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow"],
     target_class = "com.example.JsonSanitizerValidJsonFuzzer",
+    deps = [
+        "@maven//:com_google_code_gson_gson",
+        "@maven//:com_mikesamuel_json_sanitizer",
+    ],
+)
+
+java_fuzz_target_test(
+    name = "JsonSanitizerValidJsonFuzzer_new_style",
+    srcs = [
+        "src/main/java/com/example/JsonSanitizerValidJsonFuzzer_new_style.java",
+    ],
+    allowed_findings = ["com.code_intelligence.jazzer.api.FuzzerSecurityIssueLow"],
+    target_class = "com.example.JsonSanitizerValidJsonFuzzer_new_style",
     deps = [
         "@maven//:com_google_code_gson_gson",
         "@maven//:com_mikesamuel_json_sanitizer",
@@ -433,6 +550,27 @@ java_fuzz_target_test(
     tags = ["manual"],
     target_class = "com.example.TurboJpegFuzzer",
     deps = [
+        "@libjpeg_turbo//:turbojpeg_java",
+    ],
+)
+
+java_fuzz_target_test(
+    name = "TurboJpegFuzzer_new_style",
+    srcs = [
+        "src/main/java/com/example/TurboJpegFuzzer_new_style.java",
+    ],
+    data = [
+        "@libjpeg_turbo//:turbojpeg_native",
+    ],
+    fuzzer_args = [
+        "-rss_limit_mb=8196",
+        "--jvm_args=-Djava.library.path=../libjpeg_turbo",
+        "--ubsan",
+    ],
+    tags = ["manual"],
+    target_class = "com.example.TurboJpegFuzzer_new_style",
+    deps = [
+        "//src/main/java/com/code_intelligence/jazzer/mutation/annotation",
         "@libjpeg_turbo//:turbojpeg_java",
     ],
 )
