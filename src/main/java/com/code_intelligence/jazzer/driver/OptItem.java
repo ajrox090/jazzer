@@ -273,6 +273,26 @@ public abstract class OptItem<T> implements Supplier<T> {
     }
   }
 
+  public static final class myDouble extends OptItem<Double> {
+    myDouble(String name, String defaultValue, String description) {
+      super(name, defaultValue, description);
+    }
+
+    @Override
+    protected Optional<Double> fromString(String rawValue) {
+      try {
+        return Optional.of(Double.parseDouble(rawValue));
+      } catch (NumberFormatException e) {
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    protected String getType() {
+      return "Double";
+    }
+  }
+
   public static final class Uint64 extends OptItem<Long> {
     Uint64(String name, String defaultValue, String description) {
       super(name, defaultValue, description);

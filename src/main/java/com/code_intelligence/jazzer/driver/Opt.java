@@ -21,6 +21,7 @@ import static com.code_intelligence.jazzer.driver.OptParser.boolSetting;
 import static com.code_intelligence.jazzer.driver.OptParser.stringListSetting;
 import static com.code_intelligence.jazzer.driver.OptParser.stringSetting;
 import static com.code_intelligence.jazzer.driver.OptParser.uint64Setting;
+import static com.code_intelligence.jazzer.driver.OptParser.doubleSetting;
 import static java.lang.System.exit;
 
 import com.code_intelligence.jazzer.utils.Log;
@@ -49,6 +50,10 @@ public final class Opt {
     stringListSetting("jvm_args",
         "Arguments to pass to the JVM (separator can be escaped with '\\', native launcher only)");
   }
+  public static final OptItem<Double> mutatorPrngChoiceSuccess = doubleSetting("mutator_prng_choice_success", 0.5, "choice of probability for SeededPesudoRandom class --test_choice");
+  public static final OptItem<Double> prngClosedRangeAlpha = doubleSetting("prng_closed_range_alpha", 1.0, "Alpha value for Closed Range in PsesudoRandom seed generator");
+  public static final OptItem<Double> prngClosedRangeBeta = doubleSetting("prng_closed_range_beta", 1.0, "Beta value for Closed Range in PsesudoRandom seed generator");
+
 
   public static final OptItem<List<String>> additionalClassesExcludes =
       stringListSetting("additional_classes_excludes",

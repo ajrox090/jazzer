@@ -97,6 +97,12 @@ final class OptParser {
     return opt;
   }
 
+  static OptItem<Double> doubleSetting(String name, double defaultValue, String description) {
+    OptItem<Double> opt = new OptItem.myDouble(name, Double.toString(defaultValue), description);
+    knownArgs.add(opt);
+    return opt;
+  }
+
   static void registerAndValidateCommandLineArgs(List<Map.Entry<String, String>> cliArgs) {
     Set<String> allowedArgs = knownArgs.stream()
                                   .filter(optItem -> !optItem.isInternal())

@@ -23,6 +23,7 @@ import com.code_intelligence.jazzer.mutation.support.Preconditions;
 import com.code_intelligence.jazzer.mutation.support.RandomSupport;
 import java.util.List;
 import java.util.SplittableRandom;
+import com.code_intelligence.jazzer.driver.Opt;
 import java.util.function.Supplier;
 
 public final class SeededPseudoRandom implements PseudoRandom {
@@ -36,7 +37,8 @@ public final class SeededPseudoRandom implements PseudoRandom {
 
   @Override
   public boolean choice() {
-    return random.nextBoolean();
+    return random.nextDouble() < Opt.mutatorPrngChoiceSuccess.get();
+//    return random.nextBoolean();
   }
 
   @Override
@@ -73,7 +75,9 @@ public final class SeededPseudoRandom implements PseudoRandom {
     //  https://lemire.me/blog/2016/06/30/fast-random-shuffling/, which avoids a modulo operation.
     //  It's slightly more biased for large bounds, but indices and choices tend to be small and
     //  are generated frequently (e.g. when picking a submutator).
-    return random.nextInt(range);
+//    return random.nextInt(range);
+    return kumaraswamyNextInt(0, range-1);
+
   }
 
   @Override
@@ -91,12 +95,23 @@ public final class SeededPseudoRandom implements PseudoRandom {
     }
   }
 
+  private int kumaraswamyNextInt(int low, int upper){
+    double alpha = Opt.prngClosedRangeAlpha.get();
+    double beta = Opt.prngClosedRangeBeta.get();
+    double u = random.nextDouble();
+    double sample = Math.pow(1 - Math.pow(u, 1 / beta), 1 / alpha);
+
+    return low + (int) Math.floor(sample * (upper - low + 1));
+  }
+
   @Override
   public int closedRange(int lowerInclusive, int upperInclusive) {
+
     require(lowerInclusive <= upperInclusive);
     int range = upperInclusive - lowerInclusive + 1;
     if (range > 0) {
-      return lowerInclusive + random.nextInt(range);
+//      return lowerInclusive + random.nextInt(range);
+      return kumaraswamyNextInt(lowerInclusive, upperInclusive);
     } else {
       // The interval [lowerInclusive, upperInclusive] covers at least half of the
       // [Integer.MIN_VALUE, Integer.MAX_VALUE] range, fall back to rejection sampling with an
