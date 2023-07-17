@@ -19,6 +19,21 @@ java_jni_library(
             "@maven//:edu_berkeley_cs_jqf_jqf_examples",
         ],
 )
+# Protobuf
+java_fuzz_target_test(
+    name = "ProtobufFuzzer",
+    srcs = [
+        "src/main/java/com/example/ProtobufFuzzer.java",
+    ],
+    target_class = "com.example.ProtobufFuzzer",
+    deps = [
+        "//src/main/java/com/code_intelligence/jazzer/mutation/annotation",
+        "@com_google_protobuf//java/core",
+        "//deploy:jazzer-junit",
+    ],
+
+)
+
 # Closure
 java_fuzz_target_test(
     name = "ClosureGenFuzzer",
